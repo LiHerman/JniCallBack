@@ -15,17 +15,8 @@
  */
 package com.example.hellojnicallback;
 
-import androidx.annotation.Keep;
-import androidx.annotation.WorkerThread;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
-import android.graphics.Rect;
-import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,9 +27,12 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Keep;
+import androidx.annotation.WorkerThread;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.hellojnicallback.utils.FileHelper;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -90,10 +84,10 @@ public class MainActivity extends AppCompatActivity {
 
     @WorkerThread
     private void copyAsset() {
-        byte[] asset = FileHelper.readFileFromAssets(this,null,"test1.jpg");
-        path = this.getCacheDir().getPath()+"test1";
-        File test1 = new File(path);
-        if(test1.exists()) {
+        byte[] asset = FileHelper.readFileFromAssets(this,null,"test2.yuv");
+        path = this.getCacheDir().getPath()+"test2";
+        File tmp = new File(path);
+        if(tmp.exists()) {
             return;
         } else {
             boolean suc = FileHelper.saveFileByBinary(asset,path);
@@ -122,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onByteInput(View view) {
-        byte[] data = FileHelper.readFileFromAssets(this, null, "test1.jpg");
+        byte[] data = FileHelper.readFileFromAssets(this, null, "test2.yuv");
         boolean suc = writeByteToCamera(data, data.length);
         Log.d(TAG, "writeByteToCamera result= " + suc);
     }
@@ -175,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         public void surfaceCreated(SurfaceHolder holder) {
             // 获取camera对象
             int cameraCount = Camera.getNumberOfCameras();
-
+            Log.e(TAG, "cameraCount=" + cameraCount);
             if (cameraCount > 0) {
                 camera1 = Camera.open(0);
                 try {
@@ -198,28 +192,28 @@ public class MainActivity extends AppCompatActivity {
                     System.out.println("camera.startpreview");
 
 
-                    camera1.setPreviewCallback(new Camera.PreviewCallback() {
-                        @Override
-                        public void onPreviewFrame(byte[] bytes, Camera camera) {
-
-                            if (bytes != null && bytes.length > 0) {
-                                Camera.Size size = camera.getParameters().getPreviewSize(); //获取预览大小
-                                final int w = size.width;  //宽度
-                                final int h = size.height;
-//                                Log.e(TAG, "bytes.lenth=" + bytes.length);
-                                YuvImage yuvimage=new YuvImage(bytes, ImageFormat.NV21, w,h, null);//20、20分别是图的宽度与高度
-                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                yuvimage.compressToJpeg(new Rect(0, 0,w, h), 80, baos);//80--JPG图片的质量[0-100],100最高
-                                byte[] jdata = baos.toByteArray();
-
-                                Bitmap bmp = BitmapFactory.decodeByteArray(jdata, 0, jdata.length);
-//                                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                mImage.setImageBitmap(bmp);
-                            } else {
-                                Log.e(TAG, "bytes.lenthg is null");
-                            }
-                        }
-                    });
+//                    camera1.setPreviewCallback(new Camera.PreviewCallback() {
+//                        @Override
+//                        public void onPreviewFrame(byte[] bytes, Camera camera) {
+//
+//                            if (bytes != null && bytes.length > 0) {
+//                                Camera.Size size = camera.getParameters().getPreviewSize(); //获取预览大小
+//                                final int w = size.width;  //宽度
+//                                final int h = size.height;
+////                                Log.e(TAG, "bytes.lenth=" + bytes.length);
+//                                YuvImage yuvimage=new YuvImage(bytes, ImageFormat.NV21, w,h, null);//20、20分别是图的宽度与高度
+//                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//                                yuvimage.compressToJpeg(new Rect(0, 0,w, h), 80, baos);//80--JPG图片的质量[0-100],100最高
+//                                byte[] jdata = baos.toByteArray();
+//
+//                                Bitmap bmp = BitmapFactory.decodeByteArray(jdata, 0, jdata.length);
+////                                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+//                                mImage.setImageBitmap(bmp);
+//                            } else {
+//                                Log.e(TAG, "bytes.lenthg is null");
+//                            }
+//                        }
+//                    });
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -315,6 +309,18 @@ public class MainActivity extends AppCompatActivity {
                 camera2.release();
                 System.out.println("camera.release");
             }
+
+            camera2.setPreviewCallback(new Camera.PreviewCallback() {
+                @Override
+                public void onPreviewFrame(byte[] bytes, Camera camera) {
+
+                    if (bytes != null && bytes.length > 0) {
+                         writeByteToCamera(bytes,bytes.length);
+                    } else {
+                        Log.e(TAG, "bytes.lenthg is null");
+                    }
+                }
+            });
         }
 
         @Override
