@@ -77,11 +77,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="4dp"
-        android:text="读取数据"
+        android:text="文件写入"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:onClick="onRead"
+        android:onClick="onFileInput"
         />
 
     <Button
@@ -89,11 +89,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="4dp"
-        android:text="写入数据"
+        android:text="二进制写入"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/c_read"
-        android:onClick="onSave"
+        android:onClick="onByteInput"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

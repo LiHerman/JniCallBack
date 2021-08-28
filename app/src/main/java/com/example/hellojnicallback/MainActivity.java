@@ -16,6 +16,7 @@
 package com.example.hellojnicallback;
 
 import androidx.annotation.Keep;
+import androidx.annotation.WorkerThread;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.res.Configuration;
@@ -38,6 +39,7 @@ import android.widget.TextView;
 import com.example.hellojnicallback.utils.FileHelper;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
@@ -63,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
     public native void StopTicks();
 
     public native boolean writeByteToCamera(byte[] data, int length);
+    public native boolean writeFileToCamera(String filePath);
+    String path;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +83,22 @@ public class MainActivity extends AppCompatActivity {
 //        surfaceholder2.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 //        surfaceholder2.addCallback(new surfaceholderCallbackFont());
         mImage = (ImageView) findViewById(R.id.outputImg);
+
+        //TODO:put workthread
+        copyAsset();
+    }
+
+    @WorkerThread
+    private void copyAsset() {
+        byte[] asset = FileHelper.readFileFromAssets(this,null,"test1.jpg");
+        path = this.getCacheDir().getPath()+"test1";
+        File test1 = new File(path);
+        if(test1.exists()) {
+            return;
+        } else {
+            boolean suc = FileHelper.saveFileByBinary(asset,path);
+            Log.d(TAG,"save the file ["+path+"] suc="+suc);
+        }
     }
 
     @Override
@@ -95,13 +115,13 @@ public class MainActivity extends AppCompatActivity {
 //        StopTicks();
     }
 
-    public void onSave(View view) {
-        byte[] data = FileHelper.readFileFromAssets(this, null, "test1.jpg");
-        boolean suc = writeByteToCamera(data, data.length);
-        Log.d(TAG, "writeByteToCamera result= " + suc);
+    public void onFileInput(View view) {
+//        byte[] data = FileHelper.readFileFromAssets(this, null, "test1.jpg");
+        boolean suc = writeFileToCamera(path);
+        Log.d(TAG, "onFileInput path= " + path +" result="+suc);
     }
 
-    public void onRead(View view) {
+    public void onByteInput(View view) {
         byte[] data = FileHelper.readFileFromAssets(this, null, "test1.jpg");
         boolean suc = writeByteToCamera(data, data.length);
         Log.d(TAG, "writeByteToCamera result= " + suc);
@@ -186,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
                                 Camera.Size size = camera.getParameters().getPreviewSize(); //获取预览大小
                                 final int w = size.width;  //宽度
                                 final int h = size.height;
-                                Log.e(TAG, "bytes.lenth=" + bytes.length);
+//                                Log.e(TAG, "bytes.lenth=" + bytes.length);
                                 YuvImage yuvimage=new YuvImage(bytes, ImageFormat.NV21, w,h, null);//20、20分别是图的宽度与高度
                                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                                 yuvimage.compressToJpeg(new Rect(0, 0,w, h), 80, baos);//80--JPG图片的质量[0-100],100最高
