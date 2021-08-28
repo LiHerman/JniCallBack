@@ -10,13 +10,16 @@
  * Released under the GNU General Public License
  */
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <linux/videodev2.h>
-
+#include <jni.h>
+#include <android/log.h>
+static const char* TAG = "yuv_setup";
 char *prog;
 
 struct yuv_setup {
@@ -126,4 +129,36 @@ open_video(struct yuv_setup setup)
 	int loc_dev = open_video(loc_setup);
 	copy_frames(loc_setup, loc_dev);
 	return 0;
+}
+
+JNIEXPORT jboolean  JNICALL Java_com_example_hellojnicallback_MainActivity_writeByteToCamera
+        (JNIEnv *env, jobject object,jbyteArray data,jint length)
+{
+    jbyte *bytes;
+    unsigned char *buf;
+    int i;
+	__android_log_write(ANDROID_LOG_DEBUG,TAG,"writeByteToCamera start");
+    //从jbytearray获取数据到jbyte*
+    bytes = (*env)->GetByteArrayElements(env,data,NULL);
+	__android_log_write(ANDROID_LOG_DEBUG,TAG,bytes);
+    if(bytes == NULL) {
+        return false;
+    }
+    buf =(unsigned char *)calloc(length,sizeof(char));
+	__android_log_write(ANDROID_LOG_DEBUG,TAG,buf);
+
+	if(buf == NULL)
+    {
+        return false;
+    }
+    for(i=0;i<length;i++)
+    {
+        *(buf+i)=(unsigned char)(*(bytes+i));
+    }
+	write("/dev/video5", buf, length);
+    //释放资源
+	(*env)->ReleaseByteArrayElements(env,data,bytes,0);
+    __android_log_write(ANDROID_LOG_ERROR,TAG,(char*)buf);
+    free(buf);
+    return true;
 }

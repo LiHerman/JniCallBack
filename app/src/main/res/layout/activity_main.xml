@@ -23,6 +23,7 @@
         app:layout_constraintRight_toRightOf="@+id/activity_hello_jnicallback"
         tools:layout_constraintRight_creator="0"
         tools:layout_constraintBottom_creator="0"
+        android:visibility="gone"
         app:layout_constraintHorizontal_bias="0.42"
         app:layout_constraintVertical_bias="0.45" />
 
@@ -33,15 +34,66 @@
         tools:layout_editor_absoluteX="124dp"
         tools:layout_editor_absoluteY="222dp"
         android:id="@+id/tickView"
+        android:visibility="gone"
         android:textAppearance="@android:style/TextAppearance.Material.Large"
         app:layout_constraintLeft_toLeftOf="@+id/activity_hello_jnicallback"
-        tools:layout_constraintLeft_creator="0"
         app:layout_constraintTop_toTopOf="@+id/activity_hello_jnicallback"
-        tools:layout_constraintTop_creator="0"
         app:layout_constraintRight_toRightOf="@+id/activity_hello_jnicallback"
-        tools:layout_constraintRight_creator="0"
         app:layout_constraintBottom_toBottomOf="@+id/activity_hello_jnicallback"
-        tools:layout_constraintBottom_creator="0" />
+         />
 
+
+    <LinearLayout
+        android:id="@+id/surface_ly"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="horizontal">
+        <SurfaceView
+            android:id="@+id/surfaceview1"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="fill_parent" />
+        <SurfaceView
+            android:id="@+id/surfaceview2"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginLeft="5dp"
+            android:layout_height="fill_parent" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/outputImg"
+        android:layout_height="200dp"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        app:layout_constraintTop_toBottomOf="@id/surface_ly"
+        />
+
+    <Button
+        android:id="@+id/c_read"
+        android:layout_margin="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="4dp"
+        android:text="读取数据"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:onClick="onRead"
+        />
+
+    <Button
+        android:layout_margin="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="4dp"
+        android:text="写入数据"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/c_read"
+        android:onClick="onSave"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
